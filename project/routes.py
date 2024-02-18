@@ -30,7 +30,7 @@ app = Blueprint(
     template_folder='templates',
     static_folder='static'
 )
-DATABASE = "instance/Users.db"
+DATABASE = "instance/musics.db"
 
 @app.after_request
 def add_cors_headers(response):
@@ -46,13 +46,10 @@ def home():
 
 @app.route('/rechercher', methods=['GET'])
 def rechercher():
-    query = request.args.get('q', '')
-    
-    # Exécutez une requête pour obtenir les résultats de recherche à partir de votre base de données
-    # Assurez-vous d'ajuster cela en fonction de votre modèle de base de données et de vos besoins spécifiques
-    results = db_musics.session.query(Music).filter(Music.title.like(f"{query}%")).limit(10).all()
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute("SELECT * FROM musics")
+    results = c.fetchall()
+    conn.close()
 
-    # Formattez les résultats pour les renvoyer en JSON
-    formatted_results = [{'title': music.title, 'artist': music.artist} for music in results]
-
-    return jsonify(formatted_results)
+    return "render_template('rechercher.html', musics=results) ------ FAIRE LA PAGE"
