@@ -4,7 +4,8 @@ from flask_login import LoginManager
 from flask_mail import Mail
 
 
-db = SQLAlchemy()
+db_musics = SQLAlchemy()
+db_users = SQLAlchemy()
 login_manager = LoginManager()
 mail = Mail()
 
@@ -16,7 +17,8 @@ def create_app():
     app.config.from_object('config.Config')
 
     # Initialize Plugins
-    db.init_app(app)
+    db_musics.init_app(app)
+    db_users.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)
 
@@ -30,6 +32,7 @@ def create_app():
 
 
         # Create Database Models
-        db.create_all()
+        db_musics.create_all()
+        db_users.create_all()
 
         return app

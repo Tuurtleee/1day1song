@@ -6,9 +6,9 @@ from flask import Flask,render_template,request, redirect, Blueprint,Response
 from flask_login import login_required, logout_user, current_user, login_user
 import werkzeug
 from werkzeug.utils import secure_filename
-from .models import db, User
+from .models import Music, User
 from . import login_manager, mail
-from . import db
+from . import db_musics, db_users
 from dateutil.relativedelta import *
 import urllib.request
 from bs4 import BeautifulSoup as bs
@@ -19,6 +19,7 @@ import pickle
 import sys
 from datetime import datetime, timedelta
 from flask import send_file
+from flask import jsonify
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 def allowed_file(filename):
@@ -42,3 +43,16 @@ def add_cors_headers(response):
 @app.route('/')
 def home():
     return render_template('home.html')
+
+@app.route('/rechercher', methods=['GET'])
+def rechercher():
+    query = request.args.get('q', '')
+    
+    # Exécutez une requête pour obtenir les résultats de recherche à partir de votre base de données
+    # Assurez-vous d'ajuster cela en fonction de votre modèle de base de données et de vos besoins spécifiques
+    results = db_musics.session.query(Music).filter(Music.title.like(f"{query}%")).limit(10).all()
+
+    # Formattez les résultats pour les renvoyer en JSON
+    formatted_results = [{'title': music.title, 'artist': music.artist} for music in results]
+
+    return jsonify(formatted_results)

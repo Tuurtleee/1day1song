@@ -1,61 +1,103 @@
-from . import db
+from . import db_musics, db_users
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-class User(UserMixin, db.Model):
+class Music(db_musics.Model):
+    """Model for the musics table"""
+    __tablename__ = 'musics'
+    id = db_musics.Column(
+        db_musics.Integer,
+        primary_key=True
+    )
+    artist = db_musics.Column(
+        db_musics.String(100),
+        nullable=False,
+        unique=False
+    )
+    track = db_musics.Column(
+        db_musics.String(100),
+        nullable=False,
+        unique=False
+    )
+    date = db_musics.Column(
+        db_musics.String(100),
+        nullable=False,
+        unique=False
+    )
+    genre = db_musics.Column(
+        db_musics.String(100),
+        nullable=False,
+        unique=False
+    )
+    length = db_musics.Column(
+        db_musics.Integer,
+        nullable=False,
+        unique=False
+    )
+    topic = db_musics.Column(
+        db_musics.String(100),
+        nullable=False,
+        unique=False
+    )
+
+
+    def __repr__(self):
+        return '<Music {}>'.format(self.title)
+
+class User(UserMixin, db_users.Model):
     """User account model."""
 
     __tablename__ = 'flasklogin-users'
-    id = db.Column(
-        db.Integer,
+    id = db_users.Column(
+        db_users.Integer,
         primary_key=True
     )
-    name = db.Column(
-        db.String(100),
+    name = db_users.Column(
+        db_users.String(100),
         nullable=True,
         unique=False
     )
-    email = db.Column(
-        db.String(40),
+    email = db_users.Column(
+        db_users.String(40),
         unique=True,
         nullable=False
     )
-    password = db.Column(
-        db.String(200),
+    password = db_users.Column(
+        db_users.String(200),
         primary_key=False,
         unique=False,
         nullable=False
 	)
-    role = db.Column(
-        db.String(200),
+    role = db_users.Column(
+        db_users.String(200),
         primary_key=False,
         unique=False,
         nullable=False,
         default="user"
     )
-    level = db.Column(
-        db.Integer,
+    level = db_users.Column(
+        db_users.Integer,
         default=3,
         nullable=False
     )
-    pfp = db.Column(
-        db.String(200),
+    pfp = db_users.Column(
+        db_users.String(200),
         default="/static/images/default-avatar.png",
         nullable=False
     )
-    simulation_count = db.Column(
-        db.Integer,
+    simulation_count = db_users.Column(
+        db_users.Integer,
         default=0,
         nullable=False
     )
-    api_key = db.Column(
-        db.String(200),
+    api_key = db_users.Column(
+        db_users.String(200),
         nullable=True
     )
-    validated = db.Column(db.String(200))
-    is_pending = db.Column(db.Boolean,default=True)
-    is_admin = db.Column(db.Boolean,default=False)
+    validated = db_users.Column(db_users.String(200))
+    is_pending = db_users.Column(db_users.Boolean,default=True)
+    is_admin = db_users.Column(db_users.Boolean,default=False)
 
     def account_validated(self):
         self.is_pending = False

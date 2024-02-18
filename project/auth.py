@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, render_template, flash, request, session, url_for
 from flask_login import login_required, logout_user, current_user, login_user
-from .models import db, User
+from .models import db_users, User
 from . import login_manager
 import sqlite3
 import random
@@ -12,7 +12,7 @@ auth_bp = Blueprint(
     template_folder='templates',
     static_folder='static'
 )
-DATABASE = "instance/Users.db"
+DATABASE = "instance/Users.db_users"
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -62,8 +62,8 @@ def invite():
         if role == "User":
             user.level = 3
         user.set_password("483578515166259")
-        db.session.add(user)
-        db.session.commit()
+        db_users.session.add(user)
+        db_users.session.commit()
         conn = sqlite3.connect(DATABASE)
         cur = conn.cursor()
         cur.execute("INSERT INTO 'api_access' (key,last_gen) VALUES (?,?)",(api_key,""))
@@ -92,7 +92,7 @@ def first_login(code=""):
                 user.is_pending = 0
                 user.pfp = "/static/images/default-avatar.png"
                 user.name = username
-                db.session.commit()
+                db_users.session.commit()
                 login_user(user)
                 return redirect('/')
             else:
@@ -103,8 +103,8 @@ def first_login(code=""):
 def delete_user(code):
     user = User.query.filter_by(id=code).first()
     if user and current_user.level<=1 and user.name != current_user.name and user.level<current_user.level:
-        db.session.delete(user)
-        db.session.commit()
+        db_users.session.delete(user)
+        db_users.session.commit()
     return redirect('/admin-panel')
 
 @auth_bp.route("/logout")

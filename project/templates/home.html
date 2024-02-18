@@ -6,6 +6,47 @@
     <title>APP</title>
 </head>
 <body>
+    <h2>Barre de Recherche</h2>
+
+    <form action="/rechercher" method="get" oninput="search()">
+        <input type="text" id="search" name="q" placeholder="Type the name of a song" style="width: auto;">
+    </form>
+    <div id="search-results">
+        <!-- Les résultats de la recherche seront affichés ici -->
+    </div>
     
+    <script>
+        document.getElementById('search').addEventListener('input', function () {
+            var query = this.value;
+    
+            // Effectuez une requête AJAX pour récupérer les résultats de recherche
+            fetch('/rechercher?q=' + query)
+                .then(response => response.json())
+                .then(data => {
+                    // Mettez à jour l'affichage des résultats
+                    var resultsContainer = document.getElementById('search-results');
+                    resultsContainer.innerHTML = '';
+    
+                    if (data.length > 0) {
+                        data.forEach(result => {
+                            var resultItem = document.createElement('p');
+                            resultItem.textContent = result.title + ' - ' + result.artist;
+                            resultsContainer.appendChild(resultItem);
+                        });
+                    } else {
+                        var noResultsItem = document.createElement('p');
+                        noResultsItem.textContent = 'Aucun résultat trouvé.';
+                        resultsContainer.appendChild(noResultsItem);
+                    }
+                });
+        });
+    </script>
+    <div class="container">
+        <p>Auteur</p>
+        <p>Genre</p>
+        <p>Year</p>
+        <p>Len</p>
+        <p>Topic</p>
+    </div>  
 </body>
 </html>

@@ -1,5 +1,6 @@
 """Flask app configuration."""
 from os import environ, path
+import os
 from dotenv import load_dotenv
 
 basedir = path.abspath(path.dirname(__file__))
@@ -18,9 +19,13 @@ class Config:
     TEMPLATES_FOLDER = 'templates'
 
     # Flask-SQLAlchemy
-    SQLALCHEMY_DATABASE_URI = "sqlite:///Users.db"
-    SQLALCHEMY_ECHO = False
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_DATABASE_URI_MUSICS = 'sqlite:///' + os.path.join(basedir, 'music.db')
+    SQLALCHEMY_ECHO_MUSICS = False
+    SQLALCHEMY_TRACK_MODIFICATIONS_MUSICS = False
+
+    SQLALCHEMY_DATABASE_URI_USERS = 'sqlite:///' + os.path.join(basedir, 'users.db')
+    SQLALCHEMY_ECHO_USERS = False
+    SQLALCHEMY_TRACK_MODIFICATIONS_USERS = False
 
     #Mail
     MAIL_SERVER = environ.get('MAIL_SERVER')
