@@ -4,18 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>APP</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        form {
+            width: 50%;
+            display: flex;
+            justify-content: center;
+        }
+        input {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+            font-size: medium;
+        }
+        .search-results {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .search-music {
+            width: 50%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+        }
+    </style>
 </head>
 <body>
-    <h2>Barre de Recherche</h2>
+    <h2>Today's music</h2>
 
     <form action="/rechercher" method="get" oninput="search()">
-        <input type="text" id="search" name="q" placeholder="Type the name of a song" style="width: auto;">
+        <input type="text" id="search" name="q" placeholder="Type the name of a song" style="width: 80%;">
     </form>
-    <div id="search-results">
+    <div class="search-results" id="search-results">
         <!-- Les résultats de la recherche seront affichés ici -->
     </div>
-    
+    <div class="search-music" id="search-music">
+        <p>Artist: </p>
+        <p>Year: </p>
+        <p>Genre: </p>
+        <p>Topic: </p>
+    </div>
+    <div class="historique">
+        <h3>Your answers :</h3>
+    </div>
     <script>
+        var selectedMusic = {{ selected_music|tojson|safe }}; 
+
         document.getElementById('search').addEventListener('input', function () {
             var query = this.value;
     
@@ -29,24 +72,56 @@
     
                     if (data.length > 0) {
                         data.forEach(result => {
-                            var resultItem = document.createElement('p');
-                            resultItem.textContent = result.title + ' - ' + result.artist;
+                            var resultItem = document.createElement('button');
+                            resultItem.textContent = result.title + ' - ' + result.artist + ' - ' + result.year;
                             resultsContainer.appendChild(resultItem);
+                            // Ajoutez un gestionnaire d'événements au clic sur le bouton
+                            resultItem.addEventListener('click', function () {
+                                // Ajoutez le texte du bouton à la section d'historique
+                                addToHistory(result.artist, result.title, result.year, result.genre, result.topic);
+                            });
                         });
                     } else {
                         var noResultsItem = document.createElement('p');
-                        noResultsItem.textContent = 'Aucun résultat trouvé.';
+                        noResultsItem.textContent = 'No results found';
                         resultsContainer.appendChild(noResultsItem);
                     }
                 });
         });
+
+    // Fonction pour ajouter du texte à la section d'historique
+    function addToHistory(artist, title, year, genre, topic) {
+        var historiqueContainer = document.querySelector('.historique');
+        var historiqueItem = document.createElement('p');
+        historiqueItem.textContent = artist + ' - ' + title + ' - ' + year + ' - ' + genre + ' - ' + topic;
+        historiqueContainer.insertBefore(historiqueItem, historiqueContainer.children[1]);
+
+        // Effacez le contenu de l'input
+        document.getElementById('search').value = '';
+        // Effacez les résultats de la recherche
+        document.getElementById('search-results').innerHTML = '';
+
+        // Mettez à jour les informations sur la musique sélectionnée
+        var selectedMusicContainer = document.getElementById('search-music');
+        if (selectedMusic.artist == artist){
+            selectedMusicContainer.children[0].textContent = 'Artist: ' + artist;
+        }
+        if (selectedMusic.year == year){
+            selectedMusicContainer.children[1].textContent = 'Year: ' + year;
+        }
+        if (selectedMusic.genre == genre){
+            selectedMusicContainer.children[2].textContent = 'Genre: ' + genre;
+        }
+        if (selectedMusic.topic == topic){
+            selectedMusicContainer.children[3].textContent = 'Topic: ' + topic;
+        }
+
+        // Vérifiez si le titre correspond et affichez le message approprié
+        if (selectedMusic.title === title) {
+            alert('Bravo, vous avez gagné !');
+            document.getElementById('search').disabled = true; // Désactiver l'input
+        }
+    }
     </script>
-    <div class="container">
-        <p>Auteur</p>
-        <p>Genre</p>
-        <p>Year</p>
-        <p>Len</p>
-        <p>Topic</p>
-    </div>  
 </body>
 </html>

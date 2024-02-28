@@ -30,7 +30,7 @@ app = Blueprint(
     template_folder='templates',
     static_folder='static'
 )
-DATABASE = "instance/musics.db"
+DATABASE = "musics.db"
 
 @app.after_request
 def add_cors_headers(response):
@@ -42,14 +42,43 @@ def add_cors_headers(response):
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    # Exécuter une requête pour récupérer les noms de tables
+    c.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    # Récupérer les résultats de la requête
+    tables = c.fetchall()
+    # Fermer la connexion à la base de données
+    conn.close()
+    # Afficher les noms de tables dans la console pour le débogage
+    print("Tables in the database:", tables)
+
+    # Choix de la musique the hills de the weeknd dans la base de données
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute("SELECT artist_name, track_name, release_date, genre, topic FROM musics WHERE track_name = 'the hills'")
+    music = c.fetchone()
+    conn.close()
+    music = {'artist': music[0], 'title': music[1], 'year': music[2], 'genre': music[3], 'topic': music[4]}
+    print("Music choose:", music)
+
+    return render_template('home.html', selected_music=music)
 
 @app.route('/rechercher', methods=['GET'])
 def rechercher():
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
-    c.execute("SELECT * FROM musics")
-    results = c.fetchall()
-    conn.close()
+    debut = request.args.get('q', default='')
+    #print("Debut:", debut)
+    if (debut != ""):
+        c.execute("SELECT artist_name, track_name, release_date, genre, topic FROM musics WHERE track_name LIKE ? LIMIT 10", (debut + "%",))
+        results = c.fetchall()
+        conn.close()
+        print("Results:", results)
+        # Convertissez les résultats en une liste de dictionnaires
+        results_list = [{'artist': row[0], 'title': row[1], 'year': row[2], 'genre': row[3], 'topic': row[4]} for row in results]
 
-    return "render_template('rechercher.html', musics=results) ------ FAIRE LA PAGE"
+        # Renvoyez les résultats au format JSON
+        return jsonify(results_list)
+    else:
+        return jsonify([])
